@@ -1,0 +1,425 @@
+﻿@{
+    ViewData["Title"] = "Code Explainer";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-main: #1e1e1e;
+            --bg-sidebar: #333333;
+            --bg-explorer: #252525;
+            --bg-header: #2d2d2d;
+            --accent-blue: #007acc;
+            --border-color: #3c3c3c;
+            --text-main: #cccccc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-main);
+        }
+
+        /* تحسين شريط التنقل لضمان الظهور الدائم وعدم الاختفاء */
+        .modern-nav {
+            background-color: var(--bg-header) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-box {
+            background-color: #2d2d2d;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 4px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-link-custom {
+            color: #aaa !important;
+            font-size: 0.9rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+            .nav-link-custom:hover, .nav-link-custom.active {
+                color: #fff !important;
+                text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+            }
+
+
+        .explainer-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            /* نستخدم الـ flex-1 ليأخذ باقي المساحة تلقائياً */
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        .tab-button {
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-active {
+            background-color: var(--bg-main);
+            border-bottom: 2px solid var(--accent-blue);
+            color: white !important;
+        }
+
+        .sidebar-icon {
+            color: #858585;
+            cursor: pointer;
+            padding: 12px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-icon.active {
+            color: white;
+            border-left: 2px solid var(--accent-blue);
+            background-color: #37373d;
+        }
+
+        #editor {
+            resize: none;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            line-height: 1.6;
+            width: 100%;
+            height: 100%;
+            outline: none;
+            padding: 20px;
+        }
+
+        /* زر التحليل العائم */
+        .action-button {
+            background: linear-gradient(135deg, #007acc 0%, #005a9e 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border: none;
+            z-index: 50;
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+        }
+
+        .action-button:hover {
+            filter: brightness(1.2);
+            transform: scale(1.05);
+        }
+
+        .loader {
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .explorer-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .explorer-item:hover {
+            background-color: #2a2d2e;
+        }
+
+        .explorer-item.active {
+            background-color: #37373d;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شريط التنقل العلوي - تم تعديله لضمان الثبات والظهور -->
+    <header class="modern-nav">
+        <div class="nav-box">
+            <a class="nav-link-custom" href="/Home/Index">الرئيسية</a>
+            <a class="nav-link-custom" href="/Learning/Learning">التعلم</a>
+            <a class="nav-link-custom active" href="/Code_Explainer/Code_Explainer">شارح الكود</a>
+        </div>
+    </header>
+
+    <!-- منطقة العمل الرئيسية -->
+    <div class="explainer-container">
+        
+        <!-- الشريط الجانبي للأيقونات -->
+        <aside class="w-12 bg-[#333333] flex flex-col items-center py-2 border-l border-[#252525]">
+            <div class="sidebar-icon active" title="المستكشف"><i data-lucide="files" size="22"></i></div>
+            <div class="sidebar-icon" title="بحث"><i data-lucide="search" size="22"></i></div>
+            <div class="sidebar-icon" title="الأخطاء"><i data-lucide="bug" size="22"></i></div>
+            <div class="mt-auto w-full">
+                <div class="sidebar-icon" title="الإعدادات"><i data-lucide="settings" size="22"></i></div>
+            </div>
+        </aside>
+
+        <!-- مستكشف الملفات وأزرار الإدخال -->
+        <div class="w-64 bg-[#252525] hidden md:flex flex-col border-l border-[#1a1a1a]">
+            <div class="p-3 text-[10px] font-bold uppercase text-gray-500">المستكشف</div>
+            <div class="explorer-item active">
+                <i data-lucide="file-code" size="16" class="text-blue-400"></i>
+                <span>CodeExplainer.cshtml</span>
+            </div>
+
+            <!-- أزرار الإدخال -->
+            <div class="mt-auto p-4 border-t border-[#333] space-y-3 bg-[#252525]">
+                <p class="text-[9px] text-gray-500 uppercase font-bold mb-1">أدوات الكود</p>
+                <button onclick="document.getElementById('fileInput').click()" class="w-full text-[11px] bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded shadow flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="file-up" size="14"></i> رفع ملف
+                </button>
+                <button onclick="document.getElementById('imageInput').click()" class="w-full text-[11px] bg-[#3c3c3c] hover:bg-[#4d4d4d] text-white py-2.5 rounded border border-[#555] flex items-center justify-center gap-2 transition-all">
+                    <i data-lucide="camera" size="14"></i> تحليل صورة
+                </button>
+                <input type="file" id="fileInput" class="hidden" accept=".js,.py,.cs,.cshtml,.html,.css,.txt">
+                <input type="file" id="imageInput" class="hidden" accept="image/*">
+            </div>
+        </div>
+
+        <!-- محرر الكود ولوحة النتائج -->
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- التبويبات العلوية للمحرر -->
+            <div class="h-9 bg-[#2d2d2d] flex items-center text-xs border-b border-[#1e1e1e]" dir="ltr">
+                <div class="px-4 py-2 bg-[#1e1e1e] border-t border-t-blue-500 flex items-center gap-2 border-r border-[#252525] text-white">
+                    <i data-lucide="file-json" size="14" class="text-yellow-500"></i>
+                    Main_Editor
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+                <!-- منطقة كتابة الكود -->
+                <div class="flex-1 flex flex-col border-l border-[#252525] relative h-full">
+                    <textarea id="editor" class="code-font text-sm custom-scrollbar h-full" placeholder="// الصق الكود هنا أو استخدم أزرار الرفع الجانبية..." dir="ltr"></textarea>
+                    
+                    <!-- زر التشغيل العائم -->
+                    <button id="processBtn" class="action-button text-white px-6 py-3 rounded-full flex items-center gap-3 transition-all active:scale-95">
+                        <i data-lucide="sparkles" size="20" id="playIcon"></i>
+                        <div id="loadingSpinner" class="loader hidden"></div>
+                        <span id="btnText" class="font-bold">تحليل عبر Ollama</span>
+                    </button>
+                </div>
+
+                <!-- لوحة عرض النتائج -->
+                <div class="w-full lg:w-[450px] bg-[#252525] flex flex-col border-r border-[#1a1a1a]">
+                    <div class="flex bg-[#2d2d2d]">
+                        <button onclick="switchTab('explanation')" id="tabExpl" class="flex-1 py-3 text-xs font-semibold tab-button tab-active">شرح الكود</button>
+                        <button onclick="switchTab('fixedCode')" id="tabCode" class="flex-1 py-3 text-xs font-semibold tab-button text-gray-500 hover:bg-[#2a2d2e]">التصحيح</button>
+                    </div>
+
+                    <div id="outputContainer" class="flex-1 p-5 overflow-y-auto custom-scrollbar">
+                        <div id="errorMessage" class="hidden bg-red-900/20 border border-red-500/50 p-3 rounded text-red-200 text-xs mb-4">
+                            <i data-lucide="alert-circle" size="14" class="mt-1"></i>
+                            <span id="errorText"></span>
+                        </div>
+
+                        <div id="explanationView" class="leading-relaxed text-sm text-right">
+                            <p class="text-gray-600 italic text-center mt-20">بانتظار إدخال الكود...</p>
+                        </div>
+
+                        <div id="fixedCodeView" class="hidden h-full relative">
+                            <button onclick="copyFixedCode()" class="absolute top-0 right-0 p-2 bg-[#333] hover:bg-[#444] rounded text-[10px] flex items-center gap-1 border border-[#444]">
+                                <i data-lucide="copy" size="12"></i> <span id="copyText">نسخ</span>
+                            </button>
+                            <pre id="fixedCodeBlock" class="bg-[#1e1e1e] p-4 rounded border border-[#333] text-xs code-font text-blue-300 overflow-x-auto mt-8"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- شريط الحالة السفلي -->
+            <footer class="h-6 bg-[#007acc] text-white flex items-center px-3 text-[10px] justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1"><i data-lucide="radio" size="10"></i> Ollama Ready</span>
+                </div>
+                <div class="flex items-center gap-4" dir="ltr">
+                    <span>UTF-8</span>
+                    <span>Razor/C#</span>
+                    <i data-lucide="bell" size="11"></i>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        lucide.createIcons();
+
+        const ACTION_URL = "/Code_Explainer/getcurrentExplanation_currentFixedCode";
+        let currentExplanation = @Html.Raw(Json.Serialize(ViewData["currentExplanation"]));
+        let currentFixedCode = @Html.Raw(Json.Serialize(ViewData["currentFixedCode"]));
+
+        const editor = document.getElementById('editor');
+        const processBtn = document.getElementById('processBtn');
+        const playIcon = document.getElementById('playIcon');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const btnText = document.getElementById('btnText');
+        const explanationView = document.getElementById('explanationView');
+        const fixedCodeView = document.getElementById('fixedCodeView');
+        const fixedCodeBlock = document.getElementById('fixedCodeBlock');
+        const tabExpl = document.getElementById('tabExpl');
+        const tabCode = document.getElementById('tabCode');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        function switchTab(tab) {
+            if (tab === 'explanation') {
+                explanationView.classList.remove('hidden');
+                fixedCodeView.classList.add('hidden');
+                tabExpl.classList.add('tab-active');
+                tabExpl.classList.remove('text-gray-500');
+                tabCode.classList.remove('tab-active');
+                tabCode.classList.add('text-gray-500');
+            } else {
+                explanationView.classList.add('hidden');
+                fixedCodeView.classList.remove('hidden');
+                tabCode.classList.add('tab-active');
+                tabCode.classList.remove('text-gray-500');
+                tabExpl.classList.remove('tab-active');
+                tabExpl.classList.add('text-gray-500');
+            }
+        }
+
+        async function processCode(imageBase64 = null) {
+            const codeContent = editor.value.trim();
+            if (!codeContent && !imageBase64) return;
+
+            toggleLoading(true);
+
+            try {
+                const response = await fetch(ACTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: codeContent, image: imageBase64 }),
+                });
+
+                const result = await response.json();
+                currentExplanation = result.explanation || "لم يتم توفير شرح.";
+                currentFixedCode = result.fixedCode || "// لا توجد تعديلات.";
+
+                updateResults();
+            } catch (err) {
+                showError("خطأ في الاتصال بالخادم.");
+            } finally {
+                toggleLoading(false);
+            }
+          
+        }
+
+        function toggleLoading(isLoading) {
+            processBtn.disabled = isLoading;
+            if (isLoading) {
+                playIcon.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+                btnText.textContent = "جاري التحليل...";
+            } else {
+                playIcon.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+                btnText.textContent = "تحليل عبر Ollama";
+            }
+        }
+
+        function updateResults() {
+            explanationView.innerHTML = `<div class="whitespace-pre-wrap">${currentExplanation}</div>`;
+            fixedCodeBlock.textContent = currentFixedCode;
+            switchTab('explanation');
+        }
+
+        function showError(msg) {
+            errorText.textContent = msg;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function copyFixedCode() {
+            const temp = document.createElement("textarea");
+            temp.value = currentFixedCode;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            const copyBtnText = document.getElementById('copyText');
+            copyBtnText.textContent = "تم!";
+            setTimeout(() => copyBtnText.textContent = "نسخ", 2000);
+        }
+
+        processBtn.addEventListener('click', () => processCode());
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const reader = new FileReader();
+            reader.onload = (f) => editor.value = f.target.result;
+            reader.readAsText(e.target.files[0]);
+        });
+
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            const reader = new FileReader();
+            reader.onload = (f) => processCode(f.target.result.split(',')[1]);
+            reader.readAsDataURL(e.target.files[0]);
+        });
+    </script>
+</body>
+</html>

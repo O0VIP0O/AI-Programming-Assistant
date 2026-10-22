@@ -1,0 +1,448 @@
+﻿@using AI_Programming_Assistant.Models
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = null;
+    // جلب قائمة التقدم من الـ ViewBag وتحويلها للنوع الصحيح
+    var userProgress = ViewBag.userProgress as List<UsersProgrammingLanguage>;
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرئيسية - مساعد البرمجة الذكي</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;700;800&family=Cairo:wght@400;700;900&display=swap');
+
+        :root {
+            --bg-main: #0f1115;
+            --bg-sidebar: #161b22;
+            --bg-header: #0d1117;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #00f2ff;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #e6edf3;
+        }
+
+        body {
+            font-family: 'Inter', 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .modern-nav {
+            background-color: var(--bg-header) !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+
+        .nav-box {
+            background-color: rgba(45, 45, 45, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 6px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-link-custom {
+            color: #8b949e !important;
+            font-size: 0.95rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .nav-link-custom:hover, .nav-link-custom.active {
+                color: #fff !important;
+                text-shadow: 0 0 15px rgba(0, 242, 255, 0.6);
+            }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .glow-sphere {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 242, 255, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            z-index: -1;
+            animation: float 20s infinite alternate;
+        }
+
+        @@keyframes float {
+            0%
+
+        {
+            transform: translate(0, 0);
+        }
+
+        100% {
+            transform: translate(100px, 50px);
+        }
+
+        }
+
+        .glass-card {
+            background: rgba(22, 27, 34, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+            .glass-card:hover {
+                border-color: rgba(0, 242, 255, 0.4);
+                transform: translateY(-8px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            }
+
+        .shimmer-text {
+            background: linear-gradient(90deg, #fff, #00f2ff, #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @@keyframes shimmer {
+            to
+
+        {
+            background-position: 200% center;
+        }
+
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #007acc, #00f2ff);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Elements -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="glow-sphere" style="top: 10%; left: 10%;"></div>
+    <div class="glow-sphere" style="bottom: 10%; right: 10%; animation-delay: -5s;"></div>
+
+    <header class="modern-nav">
+        <div class="nav-box">
+            <a class="nav-link-custom active" href="/Home/Index">الرئيسية</a>
+            <a class="nav-link-custom" href="/Learning/Learning">التعلم</a>
+            <a class="nav-link-custom" href="/Code_Explainer/Code_Explainer">شارح الكود</a>
+        </div>
+    </header>
+
+    <main class="flex-1 relative z-10">
+        <div class="max-w-7xl mx-auto px-6 py-12">
+
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-16 gap-10">
+                <div class="text-right lg:w-2/3">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6 animate-pulse">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        نظام الذكاء الاصطناعي نشط حالياً
+                    </div>
+
+                    <h1 class="hero-title font-black text-white mb-6">
+                        مرحباً بك مجدداً، <br />
+                        <span class="shimmer-text">@(ViewBag.user_name ?? "مستخدم")</span>
+                    </h1>
+
+                    <p class="text-slate-400 text-lg max-w-2xl mb-8 leading-relaxed">
+                        استمر في تطوير مهاراتك البرمجية اليوم. لديك 15 مستوى في كل مسار لتصل إلى الإتقان الكامل.
+                    </p>
+
+                    <div class="flex flex-wrap gap-4">
+                        <a href="/Learning/Learning" class="bg-white text-black hover:bg-cyan-400 hover:text-black px-8 py-3.5 rounded-xl font-bold flex items-center gap-3 transition-all transform hover:scale-105">
+                            <i data-lucide="play-circle" size="20"></i> ابدأ التعلم الآن
+                        </a>
+                        <a href="/Code_Explainer/Code_Explainer" class="bg-slate-800/50 backdrop-blur text-white border border-slate-700 hover:border-cyan-400 px-8 py-3.5 rounded-xl font-bold flex items-center gap-3 transition-all">
+                            <i data-lucide="cpu" size="20"></i> مختبر الذكاء الاصطناعي
+                        </a>
+                    </div>
+                </div>
+
+                <div class="lg:w-1/3 relative group">
+                    <div class="absolute inset-0 bg-cyan-500/20 blur-[80px] rounded-full group-hover:bg-cyan-500/40 transition-all"></div>
+                    <img src="https://placehold.co/600x600/161b22/00f2ff?text=AI+CORE" alt="AI Illustration" class="relative z-10 w-full h-auto rounded-3xl border border-white/10 shadow-2xl transition-transform duration-700 group-hover:rotate-2">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                                <i data-lucide="layers" class="text-cyan-400"></i> مساراتك التعليمية
+                            </h2>
+                            <p class="text-slate-500 text-sm mt-1">تقدمك في الـ 15 مستوى لكل لغة</p>
+                        </div>
+                        <a href="#" class="text-cyan-400 text-sm font-bold hover:underline">عرض الكل</a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @if (userProgress != null && userProgress.Any())
+                        {
+                            foreach (var track in userProgress)
+                            {
+                                // تحويل القيمة إلى double ومعالجة الـ null لتجنب أخطاء النوع
+                                double rawUserLevel = Convert.ToDouble(track.UserLevel ?? 0);
+
+                                // حساب المستوى الحالي (من 15) بناءً على النسبة المئوية
+                                int currentLevel = (int)Math.Floor((rawUserLevel / 15) * 100);
+
+                                // النسبة المئوية للعرض في الشريط
+                                double progressPercentage = currentLevel;
+
+                                <!-- Dynamic Track Card -->
+                                <div class="glass-card p-8 group">
+                                    <div class="flex justify-between items-start mb-6">
+                                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-white/5 rounded-2xl flex items-center justify-center text-cyan-400 group-hover:rotate-6 transition-transform">
+                                            @if (track.Language.LanguageName.ToLower().Contains("python"))
+                                            {
+                                                <i data-lucide="terminal" size="28"></i>
+                                            }
+                                            else if (track.Language.LanguageName.ToLower().Contains("javascript"))
+                                            {
+
+                                                <i data-lucide="code-2" size="28"></i>
+                                            }
+                                            else
+                                            {
+
+                                                <i data-lucide="binary" size="28"></i>
+                                            }
+                                        </div>
+                                        <div class="px-3 py-1 bg-white/5 rounded-full text-[10px] font-black text-slate-400 tracking-tighter uppercase">
+                                            المستوى @currentLevel / 15
+                                        </div>
+                                    </div>
+
+                                    <h3 class="text-xl font-bold text-white mb-2">@track.Language.LanguageName</h3>
+                                    <p class="text-slate-500 text-xs mb-6 leading-relaxed">أنت الآن في المستوى @currentLevel من أصل 15 مستوى تعليمي.</p>
+
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between text-[11px] font-bold">
+                                            <span class="text-slate-400">التقدم الإجمالي</span>
+                                            <span class="text-cyan-400">@((int)progressPercentage)%</span>
+                                        </div>
+                                        <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                            <div class="progress-fill h-full" style="width: @(progressPercentage)%"></div>
+                                        </div>
+                                    </div>
+
+                                    <a href="/Learning/Learning?langId=@track.LanguageId" class="mt-8 w-full py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl text-center text-sm font-bold text-white transition-all block">
+                                        متابعة التعلم
+                                    </a>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-span-full glass-card p-12 text-center">
+                                <i data-lucide="inbox" size="48" class="mx-auto text-slate-700 mb-4"></i>
+                                <p class="text-slate-500">لا توجد مسارات تعليمية حالياً. ابدأ بإضافة لغة جديدة!</p>
+                                <a href="/Learning/Learning" class="text-cyan-400 font-bold mt-4 inline-block">تصفح اللغات</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <div>
+                        <h2 class="text-2xl font-black text-white flex items-center gap-3">
+                            <i data-lucide="bar-chart-3" class="text-indigo-400"></i> نشاطك
+                        </h2>
+                        <p class="text-slate-500 text-sm mt-1">إحصائيات الأداء الأخيرة</p>
+                    </div>
+
+                    <div class="glass-card p-6 bg-gradient-to-br from-indigo-600/5 to-transparent">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 border border-indigo-500/30">
+                                <i data-lucide="brain-circuit" size="24"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-bold text-sm">محرك GEN-AI</h4>
+                                <p class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> متصل ونشط
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <div class="flex justify-between items-center text-xs border-b border-white/5 pb-3">
+                                <span class="text-slate-500">البريد الإلكتروني</span>
+                                <span class="text-white px-2 py-0.5 bg-white/5 rounded">@ViewBag.user_email</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs border-b border-white/5 pb-3">
+                                <span class="text-slate-500">عدد المسارات</span>
+                                <span class="text-emerald-400 font-bold">@(userProgress?.Count ?? 0) مساراً</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500">تاريخ اليوم</span>
+                                <span class="text-white">@DateTime.Now.ToString("yyyy-MM-dd")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 border-l-4 border-l-cyan-400">
+                        <div class="flex items-center gap-2 text-cyan-400 mb-3">
+                            <i data-lucide="lightbulb" size="18"></i>
+                            <span class="text-xs font-black uppercase tracking-widest">نصيحة اليوم</span>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed italic">
+                            "أفضل طريقة لتعلم البرمجة هي كتابة الكود يومياً، تجاوز الـ 15 مستوى هو طريقك لتصبح خبيراً."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-auto py-6 bg-black/40 border-t border-white/5 flex flex-col md:flex-row items-center px-10 justify-between gap-4">
+        <div class="flex items-center gap-6">
+            <span class="flex items-center gap-2 text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> SYSTEM READY
+            </span>
+            <span class="text-slate-600 text-[10px] font-bold uppercase tracking-widest border-l border-white/10 pl-6 flex items-center gap-2">
+                <i data-lucide="shield-check" size="12"></i> SECURE ENVIRONMENT
+            </span>
+        </div>
+        <div class="text-slate-500 text-[10px] font-medium tracking-tighter">
+            &copy; @DateTime.Now.Year <span class="text-white">GEN-AI</span> // NEXT-GEN PROGRAMMING ASSISTANT
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // --- Background Animation (Neural Network Particles) ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = 'rgba(0, 242, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.min(Math.floor(window.innerWidth / 15), 100);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+
+                // Draw lines between nearby particles
+                for (let j = index + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 150) {
+                        ctx.strokeStyle = `rgba(0, 242, 255, ${0.1 * (1 - dist / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+
+        // --- Entrance Animations ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 200 + (100 * index));
+            });
+        });
+    </script>
+</body>
+</html>

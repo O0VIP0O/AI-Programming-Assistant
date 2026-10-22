@@ -1,0 +1,414 @@
+﻿@{
+    ViewData["Title"] = "landing_page";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;700;900&family=Noto+Sans+Arabic:wght@300;400;700;900&display=swap');
+
+        :root {
+            --bg-black: #000000;
+            --accent-primary: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+            background-color: var(--bg-black);
+            color: #ffffff;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Animated Grain/Noise Background */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Light Beams */
+        .beam {
+            position: absolute;
+            width: 1px;
+            height: 40vh;
+            background: linear-gradient(to bottom, transparent, var(--accent-primary), transparent);
+            opacity: 0.2;
+            filter: blur(1px);
+            animation: beam-move 10s infinite linear;
+        }
+
+        @@keyframes beam-move {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(300%);
+            }
+        }
+
+        /* Spotlight Effect for Cards */
+        .spotlight-card {
+            position: relative;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: transform 0.4s ease;
+        }
+
+            .spotlight-card:hover {
+                transform: scale(1.02);
+                border-color: rgba(59, 130, 246, 0.3);
+            }
+
+        /* Gradient Text Shimmer */
+        .text-shimmer {
+            background: linear-gradient(to right, #ffffff 20%, #3b82f6 50%, #ffffff 80%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @@keyframes shimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Reveal Animation on Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+            .reveal.active {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        /* Bento Grid Specifics */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 300px);
+            gap: 20px;
+        }
+
+        .bento-large {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        .bento-medium {
+            grid-column: span 2;
+        }
+
+        @@media (max-width: 1024px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+
+            .bento-large, .bento-medium {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+        }
+
+        /* Smooth Floating Mockup */
+        .mockup-container {
+            perspective: 1000px;
+        }
+
+        .mockup-content {
+            transform: rotateX(5deg) rotateY(-5deg);
+            transition: transform 0.5s ease;
+        }
+
+        .mockup-container:hover .mockup-content {
+            transform: rotateX(0deg) rotateY(0deg);
+        }
+
+        /* Modern Custom Cursor */
+        .custom-cursor {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise"></div>
+    <div class="custom-cursor" id="cursor"></div>
+
+    <!-- Background Beams -->
+    <div class="beam" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="beam" style="left: 30%; animation-delay: 3s;"></div>
+    <div class="beam" style="left: 70%; animation-delay: 5s;"></div>
+    <div class="beam" style="left: 90%; animation-delay: 1s;"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 px-6 py-6 pointer-events-none">
+        <div class="max-w-7xl mx-auto flex items-center justify-between glass border-white/5 px-6 py-3 rounded-full pointer-events-auto backdrop-blur-xl">
+            <div class="flex items-center gap-3">
+                <div class="bg-white p-1 rounded-lg">
+                    <i data-lucide="hex" class="text-black fill-black" size="20"></i>
+                </div>
+                <span class="text-lg font-black tracking-tighter">AI Progamming  <span class="text-blue-500">Assistant</span></span>
+            </div>
+
+            <div class="hidden md:flex items-center gap-8 text-[11px] uppercase font-bold tracking-widest text-gray-400">
+                <a href="#features" class="hover:text-white transition-colors">القدرات</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="/login_create_account/login_create_account" class="text-xs font-bold text-gray-400 hover:text-white transition-colors">دخول</a>
+                <a href="/login_create_account/login_create_account" class="bg-blue-600 px-5 py-2 rounded-full text-xs font-black text-white hover:bg-blue-500 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+   ابدأ مجاناً </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-48 pb-32 px-6 flex flex-col items-center justify-center text-center">
+        <div class="reveal active mb-10 flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-1 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">النسخة 1.0 أصبحت متاحة الآن</span>
+        </div>
+
+        <h1 class="reveal active text-7xl md:text-9xl font-black mb-8 leading-[0.9] tracking-tighter">
+            برمج في <br> <span class="text-shimmer">بُعد آخر</span>
+        </h1>
+
+        <p class="reveal active max-w-2xl text-gray-400 text-lg md:text-xl font-light leading-relaxed mb-12">
+            اكتشف المعنى الحقيقي للإنتاجية مع مساعد برمجي يتجاوز مجرد التصحيح. نحن لا نصلح الكود، نحن نمنحه الروح والمنطق بأحدث تقنيات الـ <span class="text-white font-bold">Deep Learning</span>.
+        </p>
+
+        <div class="reveal active flex flex-wrap justify-center gap-6 mb-32">
+            <button class="bg-white text-black px-10 py-4 rounded-2xl font-black text-lg hover:bg-blue-500 hover:text-white transition-all transform hover:scale-105 shadow-2xl">
+                <a href="/login_create_account/login_create_account">ابدأ رحلتك</a>
+            </button>
+          
+        </div>
+
+        <!-- VS Code 3D Mockup -->
+        <div class="reveal active mockup-container w-full max-w-6xl">
+            <div class="mockup-content glass border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] rounded-2xl overflow-hidden">
+                <div class="bg-[#252526] px-4 py-3 flex items-center gap-6 border-b border-white/5">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                        <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                    </div>
+                    <div class="flex items-center gap-3 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                        <i data-lucide="terminal" size="14"></i>
+                        Core_Engine.cs
+                    </div>
+                    <div class="ml-auto opacity-30"><i data-lucide="maximize-2" size="14"></i></div>
+                </div>
+                <div class="flex h-[500px]">
+                    <div class="w-14 bg-[#181818] border-l border-white/5 py-8 flex flex-col items-center gap-8 text-gray-600">
+                        <i data-lucide="files" size="20" class="text-blue-500"></i>
+                        <i data-lucide="search" size="20"></i>
+                        <i data-lucide="git-branch" size="20"></i>
+                        
+                        <i data-lucide="layout-grid" size="20"></i>
+                        <div class="mt-auto mb-4"><i data-lucide="user" size="20"></i></div>
+                    </div>
+                    <div class="flex-1 bg-[#1e1e1e] p-10 text-left code-font text-sm leading-loose">
+                        <p class="text-blue-400">using <span class="text-white">Hexa.ArtificialIntelligence;</span></p>
+                        <p class="mt-4 text-purple-400">namespace <span class="text-white">HexaCore.Modules</span> {</p>
+                        <p class="ml-8 mt-2 text-purple-400">public class <span class="text-green-300">NeuralFixer</span> {</p>
+                        <p class="ml-16 mt-4 text-gray-500">// جاري تشغيل خوارزمية المسح الذكي...</p>
+                        <p class="ml-16"><span class="text-purple-400">public async Task</span> <span class="text-yellow-400">HealCode</span>(string input) {</p>
+                        <p class="ml-24 text-blue-300">var <span class="text-white">scanResult =</span> <span class="text-purple-400">await</span> Ollama.<span class="text-yellow-200">DeepScan</span>(input);</p>
+                        <p class="ml-24 text-purple-400">if <span class="text-white">(scanResult.HasBugs) {</span></p>
+                        <p class="ml-32 text-pink-400 font-bold animate-pulse">Apply_AI_Healing(); // Fix identified instantly</p>
+                        <p class="ml-24 text-white">}</p>
+                        <p class="ml-16 text-white">}</p>
+                        <p class="ml-8 text-white">}</p>
+                        <p class="text-white">}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bento Grid Section -->
+    <section id="features" class="max-w-7xl mx-auto px-6 py-32">
+        <div class="reveal text-center mb-24">
+            <h2 class="text-5xl md:text-7xl font-black mb-6 tracking-tighter">قوة تقنية <span class="text-blue-500">غير محدودة</span></h2>
+            <p class="text-gray-400 max-w-xl mx-auto">لقد صممنا النظام ليكون المساعد الذي تمنيته دائماً، متكامل، ذكي، وسريع بشكل لا يصدق.</p>
+        </div>
+
+        <div class="bento-grid">
+            <!-- Large Feature -->
+            <div class="reveal spotlight-card bento-large p-12 flex flex-col justify-end group">
+                <div class="absolute top-0 right-0 p-12 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i data-lucide="brain" size="200"></i>
+                </div>
+                <h3 class="text-3xl font-black mb-4">ذكاء اصطناعي محلي</h3>
+                <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
+                    نحن لا نرسل بياناتك للسحاب. بفضل محرك Ollama، تتم معالجة الأكواد والتحليلات محلياً على جهازك لضمان أعلى مستويات الخصوصية والسرعة.
+                </p>
+            </div>
+
+            <!-- Medium Feature -->
+            <div class="reveal spotlight-card bento-medium p-10 flex items-center justify-between gap-10">
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2">تحليل الصور 4.0</h3>
+                    <p class="text-gray-400 text-xs leading-relaxed">ارفع صورة لكود من يوتيوب أو كتاب وسيقوم النظام بتحويلها فوراً لكود قابل للتعديل.</p>
+                </div>
+                <div class="w-32 h-32 glass rounded-2xl flex items-center justify-center">
+                    <i data-lucide="scan" size="48" class="text-blue-500"></i>
+                </div>
+            </div>
+
+            <!-- Small Feature -->
+            <div class="reveal spotlight-card p-10">
+                <i data-lucide="zap" class="text-yellow-500 mb-6" size="32"></i>
+                <h4 class="font-bold mb-2">استجابة لحظية</h4>
+                <p class="text-gray-500 text-xs">تحليل الكود في أقل من 200 جزء من الثانية.</p>
+            </div>
+
+            <!-- Small Feature -->
+            <div class="reveal spotlight-card p-10">
+                <i data-lucide="languages" class="text-purple-500 mb-6" size="32"></i>
+                <h4 class="font-bold mb-2">50+ لغة</h4>
+                <p class="text-gray-500 text-xs">دعم شامل لجميع لغات البرمجة والـ Frameworks.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Marquee (Logos Simulator) -->
+    <section class="py-20 border-y border-white/5 overflow-hidden">
+        <div class="flex items-center gap-20 animate-marquee whitespace-nowrap opacity-30 grayscale hover:grayscale-0 transition-all">
+            <span class="text-4xl font-black code-font uppercase">Python</span>
+            <span class="text-4xl font-black code-font uppercase">JavaScript</span>
+            <span class="text-4xl font-black code-font uppercase">C-Sharp</span>
+            <span class="text-4xl font-black code-font uppercase">React</span>
+            <span class="text-4xl font-black code-font uppercase">Django</span>
+            <span class="text-4xl font-black code-font uppercase">PostgreSQL</span>
+            <span class="text-4xl font-black code-font uppercase">Docker</span>
+            <span class="text-4xl font-black code-font uppercase">Kubernetes</span>
+        </div>
+    </section>
+
+    <!-- Final Call to Action -->
+    <section class="py-40 px-6 text-center relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-600/5 blur-[120px] rounded-full"></div>
+        <div class="relative z-10">
+            <h2 class="reveal text-5xl md:text-8xl font-black mb-10 tracking-tighter">هل أنت مستعد <br> لتغيير <span class="text-blue-500">قواعد اللعبة؟</span></h2>
+            <p class="reveal max-w-lg mx-auto text-gray-500 mb-12 font-light">انضم إلى مجتمع المبرمجين الذين اختاروا المستقبل. ابدأ رحلتك البرمجية الأكثر ذكاءً اليوم.</p>
+            <div class="reveal flex justify-center">
+                <a href="/login_create_account/login_create_account" class="bg-white text-black px-12 py-5 rounded-2xl font-black text-xl hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110">
+                    أطلق العنان لقدراتك الآن
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 px-10 border-t border-white/5 bg-[#030303]">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="flex items-center gap-3">
+                <i data-lucide="hex" class="text-white" size="24"></i>
+                <span class="text-xl font-black">AI Progamming Assistant</span>
+            </div>
+            <div class="flex gap-12 text-sm font-bold text-gray-500">
+                <a href="#" class="hover:text-white transition-colors">GitHub</a>
+                <a href="#" class="hover:text-white transition-colors">Twitter</a>
+                <a href="#" class="hover:text-white transition-colors">Discord</a>
+            </div>
+            <p class="text-[10px] uppercase font-bold tracking-widest text-gray-600">
+                Made for the visionaries of tomorrow.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Spotlight Cursor Tracking
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Reveal Animation on Scroll
+        const reveal = () => {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const revealTop = el.getBoundingClientRect().top;
+                const revealPoint = 150;
+                if (revealTop < windowHeight - revealPoint) {
+                    el.classList.add('active');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', reveal);
+        window.addEventListener('load', reveal);
+
+        // Infinite Marquee Simulation
+        const marquee = document.querySelector('.animate-marquee');
+        if (marquee) {
+            marquee.innerHTML += marquee.innerHTML; // Duplicate for smooth loop
+        }
+    </script>
+
+    <style>
+        .animate-marquee {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+        }
+
+        @@keyframes marquee {
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(50%);
+            }
+            /* Halfway because of duplication */
+        }
+    </style>
+</body>
+</html>

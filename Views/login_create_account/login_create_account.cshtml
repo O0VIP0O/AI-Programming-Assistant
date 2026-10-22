@@ -1,0 +1,521 @@
+﻿@{
+    ViewData["Title"] = "login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة المبرمج الذكي - النظام المتطور</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500&family=Cairo:wght@300;400;600;700&display=swap');
+
+        :root {
+            --bg-deep: #08080a;
+            --bg-card: rgba(15, 15, 20, 0.95);
+            --accent: #00f2ff;
+            --accent-secondary: #7000ff;
+            --text-dim: #8b949e;
+            --border: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-deep);
+            color: #e6edf3;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Neural Network Background */
+        #bg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        /* Floating Symbols Layer */
+        .symbols-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .floating-symbol {
+            position: absolute;
+            font-family: 'Fira Code', monospace;
+            color: var(--accent);
+            opacity: 0.1;
+            font-weight: bold;
+            filter: blur(1px);
+            animation: symbolFloat 20s infinite ease-in-out;
+        }
+
+        @@keyframes symbolFloat {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0.05;
+            }
+
+            33% {
+                transform: translate(30px, -50px) rotate(10deg);
+                opacity: 0.15;
+            }
+
+            66% {
+                transform: translate(-20px, 40px) rotate(-10deg);
+                opacity: 0.08;
+            }
+        }
+
+        /* IDE Structure */
+        .activity-bar {
+            width: 50px;
+            background: #0d1117;
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 15px;
+            gap: 25px;
+            color: var(--text-dim);
+            z-index: 20;
+        }
+
+        .activity-icon:hover {
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        .activity-icon.active {
+            color: var(--accent);
+            border-right: 2px solid var(--accent);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .main-container {
+            display: flex;
+            position: relative;
+            z-index: 10;
+            width: 95%;
+            max-width: 1000px;
+            height: 650px;
+            background: var(--bg-card);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 0 120px rgba(0, 0, 0, 0.7);
+            overflow: hidden;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .sidebar-console {
+            flex: 1.2;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            color: #4ade80;
+            display: none;
+            overflow-y: auto;
+        }
+
+        @@media (min-width: 768px) {
+            .sidebar-console {
+                display: block;
+            }
+        }
+
+        .form-area {
+            width: 100%;
+            max-width: 480px;
+            padding: 45px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+        }
+
+        .input-control {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px 16px;
+            color: white;
+            font-size: 13px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            font-family: 'Fira Code', monospace;
+        }
+
+            .input-control:focus {
+                border-color: var(--accent);
+                background: rgba(0, 0, 0, 0.6);
+                box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
+            }
+
+        .btn-cyber {
+            background: var(--accent);
+            color: #000;
+            padding: 14px;
+            border-radius: 6px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            transition: 0.4s;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 242, 255, 0.2);
+        }
+
+            .btn-cyber:hover {
+                box-shadow: 0 0 25px var(--accent);
+                transform: translateY(-2px);
+            }
+
+            .btn-cyber::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                transition: 0.5s;
+            }
+
+            .btn-cyber:hover::before {
+                left: 100%;
+            }
+
+        .fade-section {
+            animation: sectionIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @@keyframes sectionIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+                filter: blur(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+                filter: blur(0);
+            }
+        }
+
+        .status-pill {
+            background: rgba(74, 222, 128, 0.1);
+            color: #4ade80;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 10px;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            font-weight: bold;
+        }
+
+        /* Helper classes */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="symbols-layer">
+        <div class="floating-symbol" style="top: 15%; right: 10%; font-size: 60px;">{ }</div>
+        <div class="floating-symbol" style="bottom: 20%; right: 5%; font-size: 40px; animation-delay: -5s;">&lt;/&gt;</div>
+        <div class="floating-symbol" style="top: 40%; right: 25%; font-size: 30px; animation-delay: -2s;">;</div>
+        <div class="floating-symbol" style="bottom: 10%; right: 30%; font-size: 50px; animation-delay: -8s;">#</div>
+        <div class="floating-symbol" style="top: 10%; left: 10%; font-size: 35px; animation-delay: -12s;">[]</div>
+    </div>
+
+    <div class="main-container" id="appShell">
+        <div class="activity-bar">
+            <div class="activity-icon active" title="Explorer"><i data-lucide="files" size="20"></i></div>
+            <div class="activity-icon" title="Search"><i data-lucide="search" size="20"></i></div>
+            <div class="activity-icon" title="Source Control"><i data-lucide="git-branch" size="20"></i></div>
+            <div class="activity-icon" title="Run & Debug"><i data-lucide="play-circle" size="20"></i></div>
+            <div class="mt-auto pb-4 gap-4 flex flex-col">
+                <div class="activity-icon"><i data-lucide="user-circle" size="20"></i></div>
+                <div class="activity-icon"><i data-lucide="settings" size="20"></i></div>
+            </div>
+        </div>
+
+        <div class="form-area">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-12">
+                <div>
+                    <h1 id="viewTitle" class="text-3xl font-bold tracking-tight text-white mb-1">تسجيل الدخول</h1>
+                    <p class="text-[10px] text-cyan-500 font-mono tracking-widest uppercase">Encryption: RSA-4096 / active</p>
+                </div>
+                <div class="status-pill flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                    Ready
+                </div>
+            </div>
+
+            <!-- Login Section -->
+            <div id="loginSection" class="fade-section space-y-6">
+                <form action="" method="POST" class="space-y-6">
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-2 font-mono uppercase tracking-tighter">ID_IDENTIFIER</label>
+                        <div class="relative group">
+                            <i data-lucide="user" class="absolute left-4 top-3.5 w-4 h-4 text-gray-600 group-focus-within:text-cyan-400 transition-colors"></i>
+                            <input type="text" name="Username" class="input-control pl-12" placeholder="username_v2" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <label class="text-[11px] text-gray-400 font-mono uppercase tracking-tighter">KEY_TOKEN</label>
+                            <a href="#" class="text-[10px] text-cyan-400 hover:underline">Recover Key?</a>
+                        </div>
+                        <div class="relative group">
+                            <i data-lucide="lock" class="absolute left-4 top-3.5 w-4 h-4 text-gray-600 group-focus-within:text-cyan-400 transition-colors"></i>
+                            <input type="password" name="Password" class="input-control pl-12" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-cyber w-full flex items-center justify-center gap-2">
+                        <i data-lucide="log-in" size="18"></i>
+                        دخول النظام
+                    </button>
+                </form>
+
+                <div class="mt-10 pt-8 border-t border-white/5">
+                    <p class="text-center text-[10px] text-gray-500 uppercase tracking-[3px] mb-6">External Sync</p>
+                    <div class="flex gap-4">
+                        <button class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 p-3 rounded-lg flex justify-center transition-all"><i data-lucide="github" size="20" class="text-white"></i></button>
+                        <button class="flex-1 bg-white/5 hover:bg-white/10 border border-white/5 p-3 rounded-lg flex justify-center transition-all"><i data-lucide="chrome" size="20" class="text-white"></i></button>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <button onclick="toggleAuth('register')" class="text-xs text-gray-400 hover:text-white transition">
+                        لا تمتلك صلاحية؟ <span class="text-cyan-400 font-bold border-b border-cyan-400/30">طلب حساب جديد</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Section -->
+            <div id="registerSection" class="fade-section hidden space-y-6">
+                <form class="space-y-5" asp-action="Register" asp-controller="login_create_account" method="post">
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-2 font-mono">DEVELOPER_NAME</label>
+                        <input type="text" name="new_user" class="input-control" placeholder="أحمد علي" required>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-gray-400 mb-2 font-mono">EMAIL_CHANNEL</label>
+                        <input type="email" name="new_email" class="input-control" placeholder="dev@ollama.local" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] text-gray-400 mb-2 font-mono">PASSWORD</label>
+                            <input type="password" name="new_pass1" id="regPass" class="input-control" placeholder="••••" required>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-gray-400 mb-2 font-mono">CONFIRM</label>
+                            <input type="password" name="new_pass2" id="regConfirm" class="input-control" placeholder="••••" required>
+                        </div>
+                    </div>
+
+                    <div id="regError" class="hidden text-[11px] text-red-500 bg-red-500/10 p-2 rounded border border-red-500/20 text-center font-mono">
+                        ERR_AUTH_MISMATCH: Passwords do not match!
+                    </div>
+
+                    <button type="submit" class="btn-cyber w-full flex items-center justify-center gap-2">
+                        <i data-lucide="user-plus" size="18"></i>
+                        إنشاء الهوية البرمجية
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center">
+                    <button onclick="toggleAuth('login')" class="text-xs text-gray-400 hover:text-white transition">
+                        لديك وصول مسبق؟ <span class="text-cyan-400 font-bold border-b border-cyan-400/30">العودة لتسجيل الدخول</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-console" id="console">
+            <div class="flex items-center gap-2 mb-4 text-gray-400 border-b border-white/5 pb-2">
+                <i data-lucide="terminal" size="14"></i>
+                <span class="tracking-widest font-bold">SYSTEM_LOGS</span>
+            </div>
+            <div id="terminal-content" class="space-y-1">
+                <div class="text-cyan-400 font-bold">[SYS] Booting secure shell...</div>
+                <div class="text-white">[NET] Handshake with Ollama Server... OK</div>
+                <div class="text-gray-500">>> Environment: .NET MVC Core 8.0</div>
+                <div class="text-yellow-500">[WARN] Security Layer: Low (Login Required)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="fixed bottom-0 w-full h-6 bg-[#007acc] flex items-center justify-between px-4 text-[11px] text-white z-50">
+        <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1"><i data-lucide="globe" size="12"></i> Remote: Node-01</span>
+            <span class="flex items-center gap-1"><i data-lucide="git-branch" size="12"></i> master*</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="hover:bg-white/10 px-2 cursor-pointer transition">Ln 1, Col 1</span>
+            <span class="hover:bg-white/10 px-2 cursor-pointer transition">UTF-8</span>
+            <i data-lucide="bell" size="12" class="cursor-pointer"></i>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // --- Background Neural Logic ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let points = [];
+        const maxDist = 180;
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            points = [];
+            for(let i=0; i<100; i++) {
+                points.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            points.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                ctx.fillStyle = 'rgba(0, 242, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2);
+                ctx.fill();
+
+                for(let j=i+1; j<points.length; j++) {
+                    const p2 = points[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if(dist < maxDist) {
+                        ctx.strokeStyle = `rgba(0, 242, 255, ${0.4 * (1 - dist/maxDist)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(draw);
+        }
+
+        window.onresize = init;
+        init();
+        draw();
+
+        // --- Terminal Logs ---
+        const terminal = document.getElementById('terminal-content');
+        function addLog(msg, type='white') {
+            const colors = { white: 'text-white', cyan: 'text-cyan-400', yellow: 'text-yellow-500', red: 'text-red-500', dim: 'text-gray-500' };
+            const div = document.createElement('div');
+            div.className = `${colors[type] || 'text-white'} opacity-0 transition-opacity duration-500`;
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            terminal.appendChild(div);
+            setTimeout(() => div.classList.add('opacity-100'), 50);
+            if(terminal.children.length > 25) terminal.removeChild(terminal.firstChild);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        setInterval(() => addLog("System background heartbeat: OK", 'dim'), 8000);
+
+        // --- Auth Toggle Logic ---
+        function toggleAuth(mode) {
+            const login = document.getElementById('loginSection');
+            const register = document.getElementById('registerSection');
+            const title = document.getElementById('viewTitle');
+            const shell = document.getElementById('appShell');
+
+            shell.style.transform = "scale(0.98) perspective(1000px) rotateY(10deg)";
+            addLog(`Switching view to: ${mode.toUpperCase()}`, 'cyan');
+
+            setTimeout(() => {
+                if(mode === 'register') {
+                    login.classList.add('hidden');
+                    register.classList.remove('hidden');
+                    title.innerText = "إنشاء حساب";
+                } else {
+                    register.classList.add('hidden');
+                    login.classList.remove('hidden');
+                    title.innerText = "تسجيل الدخول";
+                }
+                shell.style.transform = "scale(1) rotateY(0)";
+                lucide.createIcons();
+            }, 300);
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const p1 = document.getElementById('regPass').value;
+            const p2 = document.getElementById('regConfirm').value;
+            const err = document.getElementById('regError');
+
+            if (p1 !== p2) {
+                err.classList.remove('hidden');
+                addLog("CRITICAL_ERR: Password mismatch detected.", 'red');
+                return;
+            }
+            err.classList.add('hidden');
+            addLog("Registering developer profile...", 'cyan');
+            alert("تم التحقق بنجاح! جاري الاتصال بخادم Ollama...");
+        }
+    </script>
+
+    <style>
+        .main-container {
+            animation: bootUp 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @@keyframes bootUp {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(50px);
+                filter: brightness(2) blur(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: brightness(1) blur(0);
+            }
+        }
+    </style>
+</body>
+</html>
